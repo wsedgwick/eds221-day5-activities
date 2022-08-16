@@ -1,0 +1,69 @@
+---
+title: "us_tilapia_imports"
+output: html_document
+date: '2022-08-12'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+
+us_tilapia_imports <- read_csv(here("data", "us_tilapia_imports.csv"))
+
+
+head(us_tilapia_imports)
+summarise(us_tilapia_imports)
+
+us_tilapia_imports_tidy <- pivot_longer(data = us_tilapia_imports,
+                                        cols = -country,
+                                        values_to = "imports",
+                                        names_to = "year")
+
+```
+
+
+```{r}
+
+
+
+us_tilapia_imports_tidy <- us_tilapia_imports_tidy %>%
+  mutate(year = as.numeric(year))
+
+class(us_tilapia_imports_tidy$year)
+
+yearly_tilapia_tot <- us_tilapia_imports_tidy %>%
+  group_by(year) %>%
+  summarise(total_import = sum(imports, na.rm = TRUE))
+
+
+plot_us_tilapia_imports <- ggplot(data = yearly_tilapia_tot, aes(x = year, y = total_import)) + 
+  geom_line() +
+  labs(x = "Year (1992 - 2018",
+       y = "Total Tilapia Imported (in thousands of pounds)")
+
+plot_us_tilapia_imports
+
+ggsave(plot = plot_us_tilapia_imports,
+       here::here("figs", "us_tilapia_imports.png"))
+
+
+central_america_countries <- us_tilapia_imports_tidy %>%
+  filter(country == c("Ecuador", "Honduras", "Costa Rica", "Mexico"))
+
+central_america_plot <- ggplot(data = central_america_countries, aes(x = year, y = imports)) +
+  geom_point(aes(color = country)) +
+  geom_line(aes(color = country)) +
+  labs(x = "Year",
+       y = "Total Imports",
+       title = "Total Imports of Talapia from Ecuador, Mexico, Costa Rica and Ecuador into the US")
+
+central_america_plot
+
+ggsave(plot = central_america_plot,
+       here::here("figs", "central_america_plot.jpg"))
+
+```
+
+

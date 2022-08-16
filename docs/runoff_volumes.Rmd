@@ -1,0 +1,46 @@
+---
+title: "runoff_volumes"
+output: html_document
+date: '2022-08-12'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+```
+
+```{r}
+source(here::here("src", "storm_runoff.R"))
+```
+
+
+
+```{r}
+range <- seq(0.6, 0.8, 0.01)
+
+storm_runoff_vec <- storm_runoff(imp_fraction = range, watershed_area = 182)
+storm_runoff_df <- data.frame(range, storm_runoff_vec)
+
+storm_runoff_plot <- ggplot(data = storm_runoff_df, aes(x = range, y = storm_runoff_vec)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Impervious Fraction (unitless)",
+       y = "Storm Runoff (in acres)")
+
+```
+
+```{r}
+
+ggsave(plot = storm_runoff_plot,
+       here::here("figs", "storm_runoff_plot.png"))
+
+```
+
+
+
+
+
+
+
